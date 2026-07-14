@@ -104,12 +104,44 @@ export const PRODUCT_STATUS_MAP = {
 };
 export const LEAD_STATUS_MAP = {
   new: 'badge-info', contacted: 'badge-info', interested: 'badge-warning', test_drive: 'badge-purple',
-  negotiation: 'badge-warning', booked: 'badge-success', sold: 'badge-success', lost: 'badge-danger',
+  visited: 'badge-purple', negotiation: 'badge-warning', booked: 'badge-success', sold: 'badge-success', lost: 'badge-danger',
 };
 export const LOAN_STATUS_MAP = {
-  new: 'badge-info', under_review: 'badge-warning', bank_shared: 'badge-purple',
-  approved: 'badge-success', rejected: 'badge-danger', processing: 'badge-warning', pending: 'badge-info',
+  new: 'badge-info', documents_pending: 'badge-warning', under_review: 'badge-warning', bank_shared: 'badge-purple',
+  approved: 'badge-success', rejected: 'badge-danger', disbursed: 'badge-success', processing: 'badge-warning', pending: 'badge-info',
 };
+
+/* ---------- Modal ---------- */
+export function Modal({ open, onClose, title, subtitle, children, width = 'max-w-lg' }) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/40" onClick={onClose} />
+      <div className={`relative w-full ${width} max-h-[90vh] overflow-y-auto rounded-2xl bg-white shadow-xl`}>
+        <div className="sticky top-0 flex items-start justify-between gap-3 border-b border-line bg-white px-5 py-4 rounded-t-2xl">
+          <div>
+            <h3 className="text-lg font-bold text-ink">{title}</h3>
+            {subtitle && <p className="text-xs text-muted mt-0.5">{subtitle}</p>}
+          </div>
+          <button onClick={onClose} className="icon-btn" aria-label="Close">✕</button>
+        </div>
+        <div className="p-5">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Simple form field helpers ---------- */
+export function Field({ label, children, className = '' }) {
+  return (
+    <label className={`block ${className}`}>
+      <span className="mb-1.5 block text-xs font-semibold text-muted">{label}</span>
+      {children}
+    </label>
+  );
+}
+export const inputCls =
+  'w-full rounded-xl border border-line bg-white px-3 py-2.5 text-sm text-ink outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500';
 
 /* ---------- Page header ---------- */
 export function PageHeader({ title, subtitle, onRefresh, loading, children, badge }) {

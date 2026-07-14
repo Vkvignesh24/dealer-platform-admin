@@ -7,15 +7,15 @@ import {
   Loader, ErrorState, StatusBadge, LEAD_STATUS_MAP, formatDate, formatDateTime, formatCurrency, titleCase, KV, TimelineItem, Avatar,
 } from '../components/UI';
 
-const STATUSES = ['new', 'contacted', 'interested', 'test_drive', 'negotiation', 'booked', 'sold', 'lost'];
+const STATUSES = ['new', 'contacted', 'interested', 'test_drive', 'visited', 'negotiation', 'booked', 'sold', 'lost'];
 
 const STATUS_ICONS = {
-  new: AlertCircle, contacted: Phone, interested: Tag, test_drive: CheckCircle2,
+  new: AlertCircle, contacted: Phone, interested: Tag, test_drive: CheckCircle2, visited: CheckCircle2,
   negotiation: Clock, booked: CheckCircle2, sold: CheckCircle2, lost: AlertCircle,
 };
 const STATUS_COLORS = {
   new: 'bg-blue-500', contacted: 'bg-blue-500', interested: 'bg-amber-500',
-  test_drive: 'bg-purple-500', negotiation: 'bg-amber-500',
+  test_drive: 'bg-purple-500', visited: 'bg-purple-500', negotiation: 'bg-amber-500',
   booked: 'bg-success-500', sold: 'bg-success-600', lost: 'bg-danger',
 };
 
@@ -133,6 +133,23 @@ export default function LeadDetails() {
                   ₹{(l.product.price || 0).toLocaleString('en-IN')}
                 </p>
               </Link>
+            </div>
+          )}
+
+          {/* Conversion */}
+          {l.converted && (
+            <div className="card card-p border-l-4 border-l-success-400">
+              <h3 className="panel-title mb-3">Conversion Information</h3>
+              <div className="divide-y divide-line">
+                <KV label="Converted To Sale" value="Yes" highlight />
+                <KV label="Converted On" value={formatDateTime(l.convertedAt)} />
+                {l.saleId && (
+                  <>
+                    <KV label="Sale Price" value={l.saleId.salePrice != null ? `₹${Number(l.saleId.salePrice).toLocaleString('en-IN')}` : '—'} />
+                    <KV label="Sale Status" value={titleCase(l.saleId.status)} />
+                  </>
+                )}
+              </div>
             </div>
           )}
 

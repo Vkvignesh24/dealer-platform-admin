@@ -3,7 +3,7 @@ import { Store, X, Package, Target, ShoppingBag, TrendingUp, Phone, Mail, Calend
 import { adminApi } from '../api/admin';
 import { useAdminData } from '../lib/useAdminData';
 import {
-  PageHeader, Loader, ErrorState, EmptyState, formatCurrency, formatDate,
+  PageHeader, Loader, ErrorState, EmptyState, formatCurrencyFull, formatDate,
   StatusBadge, PRODUCT_STATUS_MAP, LEAD_STATUS_MAP, SearchBar, FilterPanel, MetricChip, Avatar,
 } from '../components/UI';
 
@@ -57,7 +57,7 @@ function DealerCard({ dealer: d, onSelect }) {
         <MetricChip label="Products" value={d.productCount} />
         <MetricChip label="Leads" value={d.leadCount} accent="brand" />
         <MetricChip label="Sold" value={d.soldCount} accent="success" />
-        <MetricChip label="Revenue" value={formatCurrency(d.revenue)} accent="warn" />
+        <MetricChip label="Revenue" value={formatCurrencyFull(d.revenue)} accent="warn" />
       </div>
 
       {d.phone && (
@@ -103,7 +103,7 @@ function DealerModal({ id, onClose }) {
               <MetricChip label="Products" value={data.stats.productCount} />
               <MetricChip label="Leads" value={data.stats.leadCount} accent="brand" />
               <MetricChip label="Sold" value={data.stats.soldCount} accent="success" />
-              <MetricChip label="Revenue" value={formatCurrency(data.stats.revenue)} accent="warn" />
+              <MetricChip label="Revenue" value={formatCurrencyFull(data.stats.revenue)} accent="warn" />
             </div>
 
             {/* Inventory */}
@@ -119,7 +119,7 @@ function DealerModal({ id, onClose }) {
                           className="h-8 w-11 rounded-lg object-cover bg-primary-100 shrink-0" />
                         <div className="min-w-0">
                           <p className="text-sm font-semibold text-ink truncate">{p.name}</p>
-                          <p className="text-[11px] text-muted">{formatCurrency(p.price)}</p>
+                          <p className="text-[11px] text-muted">{formatCurrencyFull(p.price)}</p>
                         </div>
                       </div>
                       <StatusBadge status={p.status} map={PRODUCT_STATUS_MAP} />

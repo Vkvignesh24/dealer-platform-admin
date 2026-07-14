@@ -8,13 +8,14 @@ import {
   LEAD_STATUS_MAP, formatDate, titleCase, SearchBar, FilterPanel, Pagination, timeAgo, Avatar,
 } from '../components/UI';
 
-const STATUSES = ['new', 'contacted', 'interested', 'test_drive', 'negotiation', 'booked', 'sold', 'lost'];
+const STATUSES = ['new', 'contacted', 'interested', 'test_drive', 'visited', 'negotiation', 'booked', 'sold', 'lost'];
 
 const PIPELINE = [
   { key: 'new', label: 'New' },
   { key: 'contacted', label: 'Contacted' },
   { key: 'interested', label: 'Interested' },
   { key: 'test_drive', label: 'Test Drive' },
+  { key: 'visited', label: 'Visited' },
   { key: 'negotiation', label: 'Negotiation' },
   { key: 'booked', label: 'Booked' },
   { key: 'sold', label: 'Sold' },

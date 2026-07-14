@@ -4,15 +4,18 @@ import { ArrowLeft, Phone, MessageCircle, Mail, CheckCircle2, XCircle, Clock, Sa
 import { adminApi } from '../api/admin';
 import { useAdminData } from '../lib/useAdminData';
 import {
-  Loader, ErrorState, StatusBadge, LOAN_STATUS_MAP, formatCurrency, formatDateTime, KV, titleCase, TimelineItem, Avatar,
+  Loader, ErrorState, StatusBadge, LOAN_STATUS_MAP, formatCurrencyFull, formatDateTime, KV, titleCase, TimelineItem, Avatar,
 } from '../components/UI';
 
-const STATUSES = ['new', 'under_review', 'bank_shared', 'approved', 'rejected'];
+const STATUSES = ['new', 'documents_pending', 'under_review', 'bank_shared', 'approved', 'rejected', 'disbursed'];
 
-const STATUS_ICONS = { new: Clock, under_review: Clock, bank_shared: FileText, approved: CheckCircle2, rejected: XCircle };
+const STATUS_ICONS = {
+  new: Clock, documents_pending: FileText, under_review: Clock, bank_shared: FileText,
+  approved: CheckCircle2, rejected: XCircle, disbursed: Banknote,
+};
 const STATUS_COLORS = {
-  new: 'bg-blue-500', under_review: 'bg-amber-500', bank_shared: 'bg-purple-500',
-  approved: 'bg-success-500', rejected: 'bg-danger',
+  new: 'bg-blue-500', documents_pending: 'bg-amber-500', under_review: 'bg-amber-500', bank_shared: 'bg-purple-500',
+  approved: 'bg-success-500', rejected: 'bg-danger', disbursed: 'bg-success-600',
 };
 
 export default function LoanDetails() {
@@ -21,6 +24,8 @@ export default function LoanDetails() {
   const [status, setStatus] = useState('');
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
+  const [editingBank, setEditingBank] = useState(false);
+  const [bankForm, setBankForm] = useState({ bankName: '', bankBranch: '', bankContactPerson: '', bankRemarks: '' });
 
   if (loading && !data) return <Loader />;
   if (error) return <ErrorState message={error} onRetry={refresh} />;
@@ -34,6 +39,15 @@ export default function LoanDetails() {
     try {
       await adminApi.updateLoan(id, { status: next || current, note });
       setNote(''); setStatus(''); refresh();
+    } finally { setBusy(false); }
+  };
+
+  const saveBankInfo = async () => {
+    setBusy(true);
+    try {
+      await adminApi.updateLoan(id, bankForm);
+      setEditingBank(false);
+      refresh();
     } finally { setBusy(false); }
   };
 
@@ -70,11 +84,11 @@ export default function LoanDetails() {
           {/* Loan summary hero */}
           <div className="rounded-2xl bg-gradient-to-br from-primary-800 to-primary-900 p-6 text-white">
             <p className="text-[11px] font-semibold uppercase tracking-widest opacity-60 mb-1">Loan Amount Requested</p>
-            <p className="text-4xl font-extrabold">{formatCurrency(l.loanAmount)}</p>
+            <p className="text-4xl font-extrabold">{formatCurrencyFull(l.loanAmount)}</p>
             <div className="mt-4 grid grid-cols-3 gap-3">
               <LoanMini label="Tenure" value={l.tenureMonths ? `${l.tenureMonths} months` : '—'} />
-              <LoanMini label="Down Payment" value={l.downPayment ? formatCurrency(l.downPayment) : '—'} />
-              <LoanMini label="Monthly Income" value={l.monthlySalary ? formatCurrency(l.monthlySalary) : '—'} />
+              <LoanMini label="Down Payment" value={l.downPayment ? formatCurrencyFull(l.downPayment) : '—'} />
+              <LoanMini label="Monthly Income" value={l.monthlySalary ? formatCurrencyFull(l.monthlySalary) : '—'} />
             </div>
           </div>
 
@@ -121,10 +135,63 @@ export default function LoanDetails() {
                   <p className="font-semibold text-ink">{l.product.name}</p>
                   <p className="text-xs text-muted capitalize mt-0.5">{l.product.category}</p>
                 </div>
-                <p className="font-bold text-lg text-ink shrink-0">{formatCurrency(l.product.price)}</p>
+                <p className="font-bold text-lg text-ink shrink-0">{formatCurrencyFull(l.product.price)}</p>
               </Link>
             </div>
           )}
+
+          {/* Bank Information */}
+          <div className="card card-p">
+            <h3 className="panel-title mb-3">Bank Information</h3>
+            {editingBank ? (
+              <div className="space-y-3">
+                <div>
+                  <label className="label">Bank Name</label>
+                  <input className="input" value={bankForm.bankName} onChange={(e) => setBankForm({ ...bankForm, bankName: e.target.value })} />
+                </div>
+                <div>
+                  <label className="label">Branch</label>
+                  <input className="input" value={bankForm.bankBranch} onChange={(e) => setBankForm({ ...bankForm, bankBranch: e.target.value })} />
+                </div>
+                <div>
+                  <label className="label">Bank Contact Person</label>
+                  <input className="input" value={bankForm.bankContactPerson} onChange={(e) => setBankForm({ ...bankForm, bankContactPerson: e.target.value })} />
+                </div>
+                <div>
+                  <label className="label">Bank Remarks</label>
+                  <textarea className="textarea h-20" value={bankForm.bankRemarks} onChange={(e) => setBankForm({ ...bankForm, bankRemarks: e.target.value })} />
+                </div>
+                <div className="flex gap-2">
+                  <button className="btn-primary flex-1" disabled={busy} onClick={saveBankInfo}>Save</button>
+                  <button className="btn-outline" onClick={() => setEditingBank(false)}>Cancel</button>
+                </div>
+              </div>
+            ) : l.bankName || l.bankBranch || l.bankContactPerson || l.bankRemarks ? (
+              <div className="divide-y divide-line">
+                <KV label="Bank Name" value={l.bankName || '—'} highlight />
+                <KV label="Branch" value={l.bankBranch || '—'} />
+                <KV label="Contact Person" value={l.bankContactPerson || '—'} />
+                {l.bankRemarks && <KV label="Remarks" value={l.bankRemarks} />}
+                <div className="pt-3">
+                  <button className="btn-outline w-full" onClick={() => {
+                    setBankForm({
+                      bankName: l.bankName || '', bankBranch: l.bankBranch || '',
+                      bankContactPerson: l.bankContactPerson || '', bankRemarks: l.bankRemarks || '',
+                    });
+                    setEditingBank(true);
+                  }}>Edit Bank Details</button>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-4">
+                <p className="text-sm text-muted mb-3">No bank has been assigned to this application yet.</p>
+                <button className="btn-outline" onClick={() => {
+                  setBankForm({ bankName: '', bankBranch: '', bankContactPerson: '', bankRemarks: '' });
+                  setEditingBank(true);
+                }}>Add Bank Details</button>
+              </div>
+            )}
+          </div>
 
           {timeline.length > 0 && (
             <div className="card card-p">

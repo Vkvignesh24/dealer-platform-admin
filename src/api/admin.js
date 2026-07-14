@@ -49,4 +49,19 @@ export const adminApi = {
   // not under /admin.
   settings: () => client.get('/settings').then(unwrap),
   updateSettings: (payload) => client.put('/settings', payload).then(unwrap),
+
+  // Sales & Reservations — the only endpoints allowed to move a product to
+  // sold/reserved. Mounted at the API root (not /admin), same pattern as
+  // settings above; this console's Firebase user already has the
+  // dealer/admin role these routes require.
+  createSale: (payload) => client.post('/sales', payload).then(unwrap),
+  reverseSale: (id, payload) => client.patch(`/sales/${id}/reverse`, payload).then(unwrap),
+  sales: (params) => client.get('/sales', { params }).then(unwrap),
+  createReservation: (payload) => client.post('/reservations', payload).then(unwrap),
+  releaseReservation: (id) => client.patch(`/reservations/${id}/release`).then(unwrap),
+  reservations: (params) => client.get('/reservations', { params }).then(unwrap),
+
+  // Customer search, used by the Sale/Reserve dialogs to pick an "Existing
+  // Customer" without needing a full customer list page load.
+  customerSearch: (search) => client.get('/admin/customers', { params: { search, limit: 8 } }).then(unwrap),
 };

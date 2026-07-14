@@ -8,7 +8,7 @@ import { adminApi } from '../api/admin';
 import { useAdminData } from '../lib/useAdminData';
 import {
   PageHeader, Loader, ErrorState, EmptyState, StatusBadge, PRODUCT_STATUS_MAP,
-  formatCurrency, formatDate, titleCase, SearchBar, FilterPanel, Pagination, StatCard,
+  formatDate, titleCase, SearchBar, FilterPanel, Pagination, StatCard,
 } from '../components/UI';
 
 const CATEGORIES = ['car', 'bike', 'ev', 'commercial', 'land', 'property'];
@@ -130,7 +130,7 @@ export default function Products() {
                         <Link to={`/products/${p._id}`} className="icon-btn" title="View"><Eye size={14} /></Link>
                         <Link to={`/products/${p._id}/edit`} className="icon-btn" title="Edit"><Pencil size={14} /></Link>
                         <button className="icon-btn hover:text-amber-600" onClick={() => onArchive(p._id)} title="Archive"><Archive size={14} /></button>
-                        <button className="icon-btn hover:text-danger" onClick={() => onDelete(p._id)} title="Delete"><Trash2 size={14} /></button>
+                        {/* <button className="icon-btn hover:text-danger" onClick={() => onDelete(p._id)} title="Delete"><Trash2 size={14} /></button> */}
                       </div>
                     </td>
                   </tr>

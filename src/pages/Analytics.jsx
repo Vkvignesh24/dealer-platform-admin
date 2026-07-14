@@ -5,7 +5,7 @@ import {
 import { adminApi } from '../api/admin';
 import { useAdminData } from '../lib/useAdminData';
 import {
-  PageHeader, Loader, StatCard, ChartCard, formatCurrency, titleCase, SectionLabel,
+  PageHeader, Loader, StatCard, ChartCard, formatCurrency, formatCurrencyFull, titleCase, SectionLabel,
 } from '../components/UI';
 import { TrendingUp, Wallet, Target, Banknote, Package, Clock, CheckCircle2, XCircle, Percent } from 'lucide-react';
 
@@ -63,10 +63,10 @@ export default function Analytics() {
       <section className="space-y-4">
         <SectionLabel>Revenue Overview</SectionLabel>
         <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
-          <StatCard label="Monthly Revenue" value={formatCurrency(r.monthlyRevenue)} icon={TrendingUp} accent="brand" />
-          <StatCard label="Yearly Revenue" value={formatCurrency(r.yearlyRevenue)} icon={TrendingUp} accent="info" />
-          <StatCard label="Total Sold Value" value={formatCurrency(r.soldValue)} icon={Wallet} accent="primary" />
-          <StatCard label="Inventory Value" value={formatCurrency(i.inventoryValue)} icon={Wallet} accent="warn" />
+          <StatCard label="Monthly Revenue" value={formatCurrencyFull(r.monthlyRevenue)} icon={TrendingUp} accent="brand" />
+          <StatCard label="Yearly Revenue" value={formatCurrencyFull(r.yearlyRevenue)} icon={TrendingUp} accent="info" />
+          <StatCard label="Total Sold Value" value={formatCurrencyFull(r.soldValue)} icon={Wallet} accent="primary" />
+          <StatCard label="Inventory Value" value={formatCurrencyFull(i.inventoryValue)} icon={Wallet} accent="warn" />
         </div>
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
           <ChartCard title="Revenue Trend" subtitle="12-month rolling view">
@@ -189,7 +189,7 @@ export default function Analytics() {
                       {p.daysUnsold}d
                     </span>
                   </td>
-                  <td className="font-bold text-ink">{formatCurrency(p.price)}</td>
+                  <td className="font-bold text-ink">{formatCurrencyFull(p.price)}</td>
                 </tr>
               ))}
               {(a.items || []).length === 0 && (

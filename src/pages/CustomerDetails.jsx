@@ -1,12 +1,25 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Mail, Phone, Calendar, Target, Banknote, Heart, MessageCircle, Clock, Activity } from 'lucide-react';
+import { ArrowLeft, Mail, Phone, Calendar, Target, Banknote, Heart, MessageCircle, Clock, Activity, PackageCheck } from 'lucide-react';
 import { adminApi } from '../api/admin';
 import { useAdminData } from '../lib/useAdminData';
 import {
   Loader, ErrorState, StatusBadge, LEAD_STATUS_MAP, LOAN_STATUS_MAP, PRODUCT_STATUS_MAP,
-  formatCurrency, formatDate, timeAgo, StatCard, KV, Avatar, MetricChip,
+  formatCurrencyFull, formatDate, timeAgo, StatCard, KV, Avatar, MetricChip, TimelineItem, titleCase,
 } from '../components/UI';
+
+function buildActivity(leads, loans, purchases) {
+  const events = [];
+  leads.forEach((l) => events.push({ at: l.createdAt, label: `Enquiry: ${l.product?.name || 'Product'}`, sub: titleCase(l.status), icon: Target, cls: 'bg-blue-500' }));
+  loans.forEach((l) => events.push({ at: l.createdAt, label: `Loan application: ${l.product?.name || 'Product'}`, sub: `${formatCurrencyFull(l.loanAmount)} · ${titleCase(l.status)}`, icon: Banknote, cls: 'bg-purple-500' }));
+  purchases.forEach((s) => {
+    events.push({ at: s.soldDate, label: `Purchased ${s.product?.name || 'a vehicle'}`, sub: formatCurrencyFull(s.salePrice), icon: PackageCheck, cls: s.status === 'active' ? 'bg-success-500' : 'bg-primary-300' });
+    if (s.status === 'reversed' && s.reversedAt) {
+      events.push({ at: s.reversedAt, label: 'Purchase reversed', sub: s.product?.name, icon: Clock, cls: 'bg-danger' });
+    }
+  });
+  return events.filter((e) => e.at).sort((a, b) => new Date(b.at) - new Date(a.at));
+}
 
 export default function CustomerDetails() {
   const { id } = useParams();
@@ -21,11 +34,16 @@ export default function CustomerDetails() {
   const leads = data.leadHistory || [];
   const loans = data.loanRequests || [];
   const wishlist = data.interestedProducts || [];
+  const purchases = data.purchases || [];
+  const activePurchases = purchases.filter((p) => p.status === 'active');
+  const activity = buildActivity(leads, loans, purchases);
 
   const TABS = [
     { key: 'leads', label: 'Leads', count: leads.length, icon: Target },
     { key: 'loans', label: 'Loans', count: loans.length, icon: Banknote },
+    { key: 'purchases', label: 'Purchases', count: activePurchases.length, icon: PackageCheck },
     { key: 'wishlist', label: 'Wishlist', count: wishlist.length, icon: Heart },
+    { key: 'activity', label: 'Activity', count: activity.length, icon: Activity },
   ];
 
   return (
@@ -81,6 +99,7 @@ export default function CustomerDetails() {
             <div className="grid grid-cols-1 gap-2">
               <MetricChip label="Total Leads" value={leads.length} accent="brand" />
               <MetricChip label="Loan Applications" value={loans.length} accent="success" />
+              <MetricChip label="Purchases" value={activePurchases.length} accent="success" />
               <MetricChip label="Wishlist Items" value={wishlist.length} accent="warn" />
             </div>
           </div>
@@ -123,7 +142,7 @@ export default function CustomerDetails() {
                         <div className="flex items-center gap-2 mt-0.5">
                           <span className="text-[11px] text-muted capitalize">{l.product?.category}</span>
                           {l.product?.price && (
-                            <span className="text-[11px] text-muted">· {formatCurrency(l.product.price)}</span>
+                            <span className="text-[11px] text-muted">· {formatCurrencyFull(l.product.price)}</span>
                           )}
                         </div>
                       </div>
@@ -152,13 +171,46 @@ export default function CustomerDetails() {
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-ink truncate">{l.product?.name || 'Product'}</p>
                         <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-[11px] font-semibold text-ink">{formatCurrency(l.loanAmount)}</span>
+                          <span className="text-[11px] font-semibold text-ink">{formatCurrencyFull(l.loanAmount)}</span>
                           {l.tenureMonths && <span className="text-[11px] text-muted">· {l.tenureMonths} months</span>}
                         </div>
                       </div>
                       <div className="text-right shrink-0">
                         <StatusBadge status={l.status} map={LOAN_STATUS_MAP} />
                         <p className="text-[11px] text-muted mt-1">{timeAgo(l.createdAt)}</p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Purchases tab */}
+          {tab === 'purchases' && (
+            <div className="card card-p">
+              <h3 className="panel-title mb-4">Purchase History</h3>
+              {purchases.length === 0 ? (
+                <p className="text-sm text-muted py-8 text-center">No purchases yet.</p>
+              ) : (
+                <div className="space-y-2">
+                  {purchases.map((s) => (
+                    <Link key={s._id} to={`/products/${s.product?._id}`}
+                      className="flex items-center gap-4 rounded-xl border border-line px-4 py-3 hover:bg-primary-50 hover:border-primary-300 transition-colors">
+                      <img src={s.product?.images?.[0] || 'https://placehold.co/64x48?text=img'} alt=""
+                        className="h-12 w-16 rounded-lg object-cover bg-primary-100 shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-ink truncate">{s.product?.name || 'Vehicle'}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-[11px] font-semibold text-ink">{formatCurrencyFull(s.salePrice)}</span>
+                          <span className="text-[11px] text-muted">· {formatDate(s.soldDate)}</span>
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <span className={`badge ${s.status === 'active' ? 'badge-success' : 'badge-neutral'}`}>{titleCase(s.status)}</span>
+                        {s.status === 'reversed' && s.reverseReason && (
+                          <p className="text-[11px] text-muted mt-1">{titleCase(s.reverseReason)}</p>
+                        )}
                       </div>
                     </Link>
                   ))}
@@ -183,12 +235,36 @@ export default function CustomerDetails() {
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-semibold text-ink truncate">{p.name}</p>
                         <p className="text-[11px] text-muted capitalize">{p.category}</p>
-                        <p className="text-[12px] font-bold text-ink mt-0.5">{formatCurrency(p.price)}</p>
+                        <p className="text-[12px] font-bold text-ink mt-0.5">{formatCurrencyFull(p.price)}</p>
                       </div>
                       <StatusBadge status={p.status} map={PRODUCT_STATUS_MAP} />
                     </Link>
                   ))}
                 </div>
+              )}
+            </div>
+          )}
+
+          {/* Activity tab */}
+          {tab === 'activity' && (
+            <div className="card card-p">
+              <h3 className="panel-title mb-4">Activity Timeline</h3>
+              {activity.length === 0 ? (
+                <p className="text-sm text-muted py-8 text-center">No activity yet.</p>
+              ) : (
+                <ol>
+                  {activity.map((e, i) => (
+                    <TimelineItem
+                      key={i}
+                      icon={e.icon}
+                      iconCls={e.cls}
+                      label={e.label}
+                      sub={e.sub}
+                      time={e.at}
+                      isLast={i === activity.length - 1}
+                    />
+                  ))}
+                </ol>
               )}
             </div>
           )}

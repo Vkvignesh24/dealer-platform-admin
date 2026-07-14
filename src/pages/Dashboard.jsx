@@ -11,7 +11,7 @@ import { adminApi } from '../api/admin';
 import { useAdminData } from '../lib/useAdminData';
 import {
   StatCard, PageHeader, Loader, ErrorState, ChartCard,
-  formatCurrency, formatNumber, formatDate, timeAgo,
+  formatCurrency, formatCurrencyFull, formatNumber, formatDate, timeAgo,
   StatusBadge, PRODUCT_STATUS_MAP, LEAD_STATUS_MAP, LOAN_STATUS_MAP, Avatar,
 } from '../components/UI';
 
@@ -73,10 +73,10 @@ export default function Dashboard() {
 
       {/* Revenue strip */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <RevenueCard label="Inventory Value" value={formatCurrency(d.inventoryValue)} accent="bg-gradient-to-br from-primary-800 to-primary-900" icon={Wallet} />
-        <RevenueCard label="Total Sold Value" value={formatCurrency(d.soldValue)} accent="bg-gradient-to-br from-success-600 to-success-700" icon={ShoppingBag} />
-        <RevenueCard label="Monthly Revenue" value={formatCurrency(d.monthlyRevenue)} accent="bg-gradient-to-br from-brand-500 to-brand-700" icon={TrendingUp} />
-        <RevenueCard label="Yearly Revenue" value={formatCurrency(d.yearlyRevenue)} accent="bg-gradient-to-br from-amber-500 to-amber-600" icon={Activity} />
+        <RevenueCard label="Inventory Value" value={formatCurrencyFull(d.inventoryValue)} accent="bg-gradient-to-br from-primary-800 to-primary-900" icon={Wallet} />
+        <RevenueCard label="Total Sold Value" value={formatCurrencyFull(d.soldValue)} accent="bg-gradient-to-br from-success-600 to-success-700" icon={ShoppingBag} />
+        <RevenueCard label="Monthly Revenue" value={formatCurrencyFull(d.monthlyRevenue)} accent="bg-gradient-to-br from-brand-500 to-brand-700" icon={TrendingUp} />
+        <RevenueCard label="Yearly Revenue" value={formatCurrencyFull(d.yearlyRevenue)} accent="bg-gradient-to-br from-amber-500 to-amber-600" icon={Activity} />
       </div>
 
       {/* Inventory status mini-cards */}
@@ -214,7 +214,7 @@ export default function Dashboard() {
                   <Avatar name={l.name} size={8} />
                   <div>
                     <Link to={`/loans/${l._id}`} className="font-semibold text-ink hover:text-brand-600 text-[12.5px]">{l.name}</Link>
-                    <p className="text-[11px] text-muted">{formatCurrency(l.loanAmount)}</p>
+                    <p className="text-[11px] text-muted">{formatCurrencyFull(l.loanAmount)}</p>
                   </div>
                 </div>
               </td>

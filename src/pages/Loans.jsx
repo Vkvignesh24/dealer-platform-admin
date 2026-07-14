@@ -5,10 +5,10 @@ import { adminApi } from '../api/admin';
 import { useAdminData } from '../lib/useAdminData';
 import {
   PageHeader, Loader, ErrorState, EmptyState, StatCard, StatusBadge,
-  LOAN_STATUS_MAP, formatCurrency, titleCase, SearchBar, FilterPanel, Pagination, formatDate, timeAgo, Avatar,
+  LOAN_STATUS_MAP, formatCurrencyFull, titleCase, SearchBar, FilterPanel, Pagination, formatDate, timeAgo, Avatar,
 } from '../components/UI';
 
-const STATUSES = ['new', 'under_review', 'bank_shared', 'approved', 'rejected'];
+const STATUSES = ['new', 'documents_pending', 'under_review', 'bank_shared', 'approved', 'rejected', 'disbursed'];
 
 const FUNNEL = [
   { key: 'new', label: 'New' },
@@ -118,8 +118,8 @@ export default function Loans() {
                     <td className="text-[12.5px] text-primary-700 max-w-[160px]">
                       <span className="line-clamp-1">{l.product?.name || '—'}</span>
                     </td>
-                    <td className="text-muted">{l.monthlySalary ? formatCurrency(l.monthlySalary) : '—'}</td>
-                    <td><span className="font-bold text-ink">{formatCurrency(l.loanAmount)}</span></td>
+                    <td className="text-muted">{l.monthlySalary ? formatCurrencyFull(l.monthlySalary) : '—'}</td>
+                    <td><span className="font-bold text-ink">{formatCurrencyFull(l.loanAmount)}</span></td>
                     <td className="text-muted">{l.tenureMonths ? `${l.tenureMonths} mo` : '—'}</td>
                     <td><StatusBadge status={l.status} map={LOAN_STATUS_MAP} /></td>
                     <td className="text-muted text-[12px]">{timeAgo(l.createdAt)}</td>
