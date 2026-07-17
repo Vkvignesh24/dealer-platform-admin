@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 
 // Fetches data, exposes manual refresh and auto-refreshes every 30s.
-export function useAdminData(fetcher, deps = [], { auto = true, interval = 30000 } = {}) {
+export function useAdminData(fetcher, deps = [], { auto = false, interval = 30000 } = {}) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);

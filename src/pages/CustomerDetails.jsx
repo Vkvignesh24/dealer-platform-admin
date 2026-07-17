@@ -100,6 +100,7 @@ export default function CustomerDetails() {
               <MetricChip label="Total Leads" value={leads.length} accent="brand" />
               <MetricChip label="Loan Applications" value={loans.length} accent="success" />
               <MetricChip label="Purchases" value={activePurchases.length} accent="success" />
+              <MetricChip label="Lifetime Value" value={formatCurrencyFull(activePurchases.reduce((sum, p) => sum + (p.salePrice || 0), 0))} accent="success" />
               <MetricChip label="Wishlist Items" value={wishlist.length} accent="warn" />
             </div>
           </div>

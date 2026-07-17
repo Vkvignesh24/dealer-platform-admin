@@ -14,7 +14,8 @@ import Loans from './pages/Loans';
 import LoanDetails from './pages/LoanDetails';
 import Dealers from './pages/Dealers';
 import Analytics from './pages/Analytics';
-import Notifications from './pages/Notifications';
+import NotificationsInbox from './pages/NotificationsInbox';
+import NotificationsSend from './pages/NotificationsSend';
 import Settings from './pages/Settings';
 import Profile from './pages/Profile';
 
@@ -48,7 +49,8 @@ export default function App() {
 
           <Route path="dealers" element={<Dealers />} />
           <Route path="analytics" element={<Analytics />} />
-          <Route path="notifications" element={<Notifications />} />
+          <Route path="notifications" element={<NotificationsInbox />} />
+          <Route path="notifications/send" element={<NotificationsSend />} />
           <Route path="settings" element={<Settings />} />
           <Route path="profile" element={<Profile />} />
 

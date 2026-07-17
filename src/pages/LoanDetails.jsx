@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Phone, MessageCircle, Mail, CheckCircle2, XCircle, Clock, Save, Banknote, FileText } from 'lucide-react';
+import { ArrowLeft, Phone, MessageCircle, Mail, CheckCircle2, XCircle, Clock, Save, Banknote, FileText, Upload, Trash2 } from 'lucide-react';
 import { adminApi } from '../api/admin';
 import { useAdminData } from '../lib/useAdminData';
 import {
@@ -26,6 +26,8 @@ export default function LoanDetails() {
   const [busy, setBusy] = useState(false);
   const [editingBank, setEditingBank] = useState(false);
   const [bankForm, setBankForm] = useState({ bankName: '', bankBranch: '', bankContactPerson: '', bankRemarks: '' });
+  const [docForm, setDocForm] = useState({ name: '', url: '' });
+  const [addingDoc, setAddingDoc] = useState(false);
 
   if (loading && !data) return <Loader />;
   if (error) return <ErrorState message={error} onRetry={refresh} />;
@@ -49,6 +51,22 @@ export default function LoanDetails() {
       setEditingBank(false);
       refresh();
     } finally { setBusy(false); }
+  };
+
+  const addDocument = async () => {
+    if (!docForm.name.trim() || !docForm.url.trim()) return;
+    setAddingDoc(true);
+    try {
+      await adminApi.addLoanDocument(id, docForm);
+      setDocForm({ name: '', url: '' });
+      refresh();
+    } finally { setAddingDoc(false); }
+  };
+
+  const removeDocument = async (docId) => {
+    if (!confirm('Remove this document?')) return;
+    await adminApi.removeLoanDocument(id, docId);
+    refresh();
   };
 
   const timeline = timelineOf(l);
@@ -191,6 +209,32 @@ export default function LoanDetails() {
                 }}>Add Bank Details</button>
               </div>
             )}
+          </div>
+
+          {/* Documents */}
+          <div className="card card-p">
+            <h3 className="panel-title mb-3">Documents</h3>
+            {l.documents?.length > 0 && (
+              <div className="mb-3 space-y-2">
+                {l.documents.map((d) => (
+                  <div key={d._id} className="flex items-center justify-between rounded-xl border border-line px-3 py-2">
+                    <a href={d.url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm font-semibold text-brand-600 hover:underline truncate">
+                      <FileText size={14} className="shrink-0" /> {d.name}
+                    </a>
+                    <button className="icon-btn hover:text-danger shrink-0" onClick={() => removeDocument(d._id)} title="Remove">
+                      <Trash2 size={13} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <input className="input" placeholder="Document name (e.g. PAN Card)" value={docForm.name} onChange={(e) => setDocForm({ ...docForm, name: e.target.value })} />
+              <input className="input" placeholder="Document URL" value={docForm.url} onChange={(e) => setDocForm({ ...docForm, url: e.target.value })} />
+              <button className="btn-outline shrink-0" disabled={addingDoc} onClick={addDocument}>
+                <Upload size={14} /> Add
+              </button>
+            </div>
           </div>
 
           {timeline.length > 0 && (

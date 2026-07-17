@@ -28,6 +28,15 @@ const DEFAULTS = {
   address: '',
   primaryColor: '#1E293B',
   social: { facebook: '', instagram: '', youtube: '', website: '' },
+  business: { gstNumber: '', panNumber: '', registrationNumber: '' },
+  contact: { alternatePhone: '', supportEmail: '' },
+  seo: { metaTitle: '', metaDescription: '' },
+  integrations: {
+    whatsappApi: { enabled: false, phoneNumberId: '' },
+    razorpay: { enabled: false, keyId: '' },
+    googleAnalytics: { enabled: false, measurementId: '' },
+  },
+  branding: { favicon: '', splashLogo: '', appLogo: '', appIcon: '' },
 };
 
 export default function Settings() {
@@ -56,6 +65,30 @@ export default function Settings() {
             youtube: data.social?.youtube || '',
             website: data.social?.website || '',
           },
+          business: {
+            gstNumber: data.business?.gstNumber || '',
+            panNumber: data.business?.panNumber || '',
+            registrationNumber: data.business?.registrationNumber || '',
+          },
+          contact: {
+            alternatePhone: data.contact?.alternatePhone || '',
+            supportEmail: data.contact?.supportEmail || '',
+          },
+          seo: {
+            metaTitle: data.seo?.metaTitle || '',
+            metaDescription: data.seo?.metaDescription || '',
+          },
+          integrations: {
+            whatsappApi: { enabled: !!data.integrations?.whatsappApi?.enabled, phoneNumberId: data.integrations?.whatsappApi?.phoneNumberId || '' },
+            razorpay: { enabled: !!data.integrations?.razorpay?.enabled, keyId: data.integrations?.razorpay?.keyId || '' },
+            googleAnalytics: { enabled: !!data.integrations?.googleAnalytics?.enabled, measurementId: data.integrations?.googleAnalytics?.measurementId || '' },
+          },
+          branding: {
+            favicon: data.branding?.favicon || '',
+            splashLogo: data.branding?.splashLogo || '',
+            appLogo: data.branding?.appLogo || '',
+            appIcon: data.branding?.appIcon || '',
+          },
         });
       })
       .catch(() => setError('Could not load settings. You can still fill the form and try saving.'))
@@ -65,6 +98,11 @@ export default function Settings() {
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
   const setSocial = (k, v) => setForm((f) => ({ ...f, social: { ...f.social, [k]: v } }));
+  const setGroup = (group, k, v) => setForm((f) => ({ ...f, [group]: { ...f[group], [k]: v } }));
+  const setIntegration = (service, k, v) => setForm((f) => ({
+    ...f,
+    integrations: { ...f.integrations, [service]: { ...f.integrations[service], [k]: v } },
+  }));
 
   const save = async (e) => {
     e.preventDefault();
@@ -111,6 +149,63 @@ export default function Settings() {
             <div><label className="label">Instagram</label><input className="input" value={form.social.instagram} onChange={(e) => setSocial('instagram', e.target.value)} /></div>
             <div><label className="label">Facebook</label><input className="input" value={form.social.facebook} onChange={(e) => setSocial('facebook', e.target.value)} /></div>
             <div><label className="label">YouTube</label><input className="input" value={form.social.youtube} onChange={(e) => setSocial('youtube', e.target.value)} /></div>
+          </div>
+        </FormSection>
+
+        <FormSection title="Registration Details" description="Used on invoices and official documents.">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+            <div><label className="label">GST Number</label><input className="input" value={form.business.gstNumber} onChange={(e) => setGroup('business', 'gstNumber', e.target.value)} placeholder="22AAAAA0000A1Z5" /></div>
+            <div><label className="label">PAN Number</label><input className="input" value={form.business.panNumber} onChange={(e) => setGroup('business', 'panNumber', e.target.value)} placeholder="AAAAA0000A" /></div>
+            <div><label className="label">Business Registration No.</label><input className="input" value={form.business.registrationNumber} onChange={(e) => setGroup('business', 'registrationNumber', e.target.value)} /></div>
+          </div>
+        </FormSection>
+
+        <FormSection title="Additional Contact" description="Backup contact points shown to customers when needed.">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div><label className="label">Alternate Phone</label><input className="input" value={form.contact.alternatePhone} onChange={(e) => setGroup('contact', 'alternatePhone', e.target.value)} /></div>
+            <div><label className="label">Support Email</label><input className="input" type="email" value={form.contact.supportEmail} onChange={(e) => setGroup('contact', 'supportEmail', e.target.value)} /></div>
+          </div>
+        </FormSection>
+
+        <FormSection title="SEO" description="Controls how the customer app appears in search results and link previews.">
+          <div className="grid grid-cols-1 gap-3">
+            <div><label className="label">Meta Title</label><input className="input" value={form.seo.metaTitle} onChange={(e) => setGroup('seo', 'metaTitle', e.target.value)} /></div>
+            <div><label className="label">Meta Description</label><textarea className="input min-h-[72px]" value={form.seo.metaDescription} onChange={(e) => setGroup('seo', 'metaDescription', e.target.value)} /></div>
+          </div>
+        </FormSection>
+
+        <FormSection title="Integrations" description="Only non-secret identifiers are stored here — API keys and secrets belong in server environment variables.">
+          <div className="space-y-4">
+            <div className="rounded-xl border border-line p-3">
+              <label className="flex items-center gap-2 mb-2">
+                <input type="checkbox" checked={form.integrations.whatsappApi.enabled} onChange={(e) => setIntegration('whatsappApi', 'enabled', e.target.checked)} />
+                <span className="font-semibold text-sm text-ink">WhatsApp Business API</span>
+              </label>
+              <input className="input" placeholder="Phone Number ID" value={form.integrations.whatsappApi.phoneNumberId} onChange={(e) => setIntegration('whatsappApi', 'phoneNumberId', e.target.value)} disabled={!form.integrations.whatsappApi.enabled} />
+            </div>
+            <div className="rounded-xl border border-line p-3">
+              <label className="flex items-center gap-2 mb-2">
+                <input type="checkbox" checked={form.integrations.razorpay.enabled} onChange={(e) => setIntegration('razorpay', 'enabled', e.target.checked)} />
+                <span className="font-semibold text-sm text-ink">Razorpay</span>
+              </label>
+              <input className="input" placeholder="Key ID" value={form.integrations.razorpay.keyId} onChange={(e) => setIntegration('razorpay', 'keyId', e.target.value)} disabled={!form.integrations.razorpay.enabled} />
+            </div>
+            <div className="rounded-xl border border-line p-3">
+              <label className="flex items-center gap-2 mb-2">
+                <input type="checkbox" checked={form.integrations.googleAnalytics.enabled} onChange={(e) => setIntegration('googleAnalytics', 'enabled', e.target.checked)} />
+                <span className="font-semibold text-sm text-ink">Google Analytics</span>
+              </label>
+              <input className="input" placeholder="Measurement ID (G-XXXXXXX)" value={form.integrations.googleAnalytics.measurementId} onChange={(e) => setIntegration('googleAnalytics', 'measurementId', e.target.value)} disabled={!form.integrations.googleAnalytics.enabled} />
+            </div>
+          </div>
+        </FormSection>
+
+        <FormSection title="Branding" description="Icons and logos used across the customer app, dealer app, and web.">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div><label className="label">Favicon URL</label><input className="input" value={form.branding.favicon} onChange={(e) => setGroup('branding', 'favicon', e.target.value)} placeholder="https://…" /></div>
+            <div><label className="label">Splash Logo URL</label><input className="input" value={form.branding.splashLogo} onChange={(e) => setGroup('branding', 'splashLogo', e.target.value)} placeholder="https://…" /></div>
+            <div><label className="label">App Logo URL</label><input className="input" value={form.branding.appLogo} onChange={(e) => setGroup('branding', 'appLogo', e.target.value)} placeholder="https://…" /></div>
+            <div><label className="label">App Icon URL</label><input className="input" value={form.branding.appIcon} onChange={(e) => setGroup('branding', 'appIcon', e.target.value)} placeholder="https://…" /></div>
           </div>
         </FormSection>
 

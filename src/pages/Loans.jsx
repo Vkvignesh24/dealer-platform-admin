@@ -29,6 +29,10 @@ export default function Loans() {
   const { data: stats, refresh: refreshStats } = useAdminData(() => adminApi.loanAnalytics());
   const set = (k, v) => setFilters((f) => ({ ...f, [k]: v, page: k === 'page' ? v : 1 }));
   const onRefresh = () => { refresh(); refreshStats(); };
+  const quickDecide = async (id, status) => {
+    await adminApi.updateLoan(id, { status });
+    onRefresh();
+  };
   const productName = data?.items?.[0]?.product?.name;
   const br = stats?.statusBreakdown || {};
   const total = stats?.totalRequests || 0;
@@ -124,7 +128,19 @@ export default function Loans() {
                     <td><StatusBadge status={l.status} map={LOAN_STATUS_MAP} /></td>
                     <td className="text-muted text-[12px]">{timeAgo(l.createdAt)}</td>
                     <td className="text-right">
-                      <Link to={`/loans/${l._id}`} className="icon-btn"><Eye size={14} /></Link>
+                      <div className="flex items-center justify-end gap-1">
+                        {!['approved', 'rejected', 'disbursed'].includes(l.status) && (
+                          <>
+                            <button className="icon-btn hover:text-success-600" title="Approve" onClick={() => quickDecide(l._id, 'approved')}>
+                              <CheckCircle2 size={14} />
+                            </button>
+                            <button className="icon-btn hover:text-danger" title="Reject" onClick={() => quickDecide(l._id, 'rejected')}>
+                              <XCircle size={14} />
+                            </button>
+                          </>
+                        )}
+                        <Link to={`/loans/${l._id}`} className="icon-btn" title="View details"><Eye size={14} /></Link>
+                      </div>
                     </td>
                   </tr>
                 ))}

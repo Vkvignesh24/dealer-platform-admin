@@ -62,32 +62,36 @@ export default function Dashboard() {
       {/* Primary KPIs */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
         <StatCard label="Total Products" value={formatNumber(d.totalProducts)} icon={Package} accent="primary"
-          sub={`${d.availableProducts || 0} available`} trend={d.newProductsThisMonth ? 5 : undefined} trendLabel="vs last month" />
+          sub={`${d.availableProducts || 0} available`} trend={d.newProductsThisMonth ? 5 : undefined} trendLabel="vs last month"
+          to="/products" />
         <StatCard label="Total Customers" value={formatNumber(d.totalCustomers)} icon={Users} accent="brand"
-          sub={d.newCustomersThisMonth ? `+${d.newCustomersThisMonth} this month` : undefined} />
+          sub={d.newCustomersThisMonth ? `+${d.newCustomersThisMonth} this month` : undefined}
+          to="/customers" />
         <StatCard label="Active Leads" value={formatNumber(d.totalLeads)} icon={Target} accent="warn"
-          sub={`${leadStats?.conversionRate ?? 0}% conversion`} />
+          sub={`${leadStats?.conversionRate ?? 0}% conversion`}
+          to="/leads?status=new" />
         <StatCard label="Loan Requests" value={formatNumber(d.totalLoanRequests)} icon={Banknote} accent="info"
-          sub={`${loanStats?.approvalRate ?? 0}% approval`} />
+          sub={`${loanStats?.approvalRate ?? 0}% approval`}
+          to="/loans" />
       </div>
 
       {/* Revenue strip */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <RevenueCard label="Inventory Value" value={formatCurrencyFull(d.inventoryValue)} accent="bg-gradient-to-br from-primary-800 to-primary-900" icon={Wallet} />
-        <RevenueCard label="Total Sold Value" value={formatCurrencyFull(d.soldValue)} accent="bg-gradient-to-br from-success-600 to-success-700" icon={ShoppingBag} />
-        <RevenueCard label="Monthly Revenue" value={formatCurrencyFull(d.monthlyRevenue)} accent="bg-gradient-to-br from-brand-500 to-brand-700" icon={TrendingUp} />
-        <RevenueCard label="Yearly Revenue" value={formatCurrencyFull(d.yearlyRevenue)} accent="bg-gradient-to-br from-amber-500 to-amber-600" icon={Activity} />
+        <RevenueCard label="Inventory Value" value={formatCurrencyFull(d.inventoryValue)} accent="bg-gradient-to-br from-primary-800 to-primary-900" icon={Wallet} to="/analytics#inventory" />
+        <RevenueCard label="Total Sold Value" value={formatCurrencyFull(d.soldValue)} accent="bg-gradient-to-br from-success-600 to-success-700" icon={ShoppingBag} to="/analytics#revenue" />
+        <RevenueCard label="Monthly Revenue" value={formatCurrencyFull(d.monthlyRevenue)} accent="bg-gradient-to-br from-brand-500 to-brand-700" icon={TrendingUp} to="/analytics?period=month#revenue" />
+        <RevenueCard label="Yearly Revenue" value={formatCurrencyFull(d.yearlyRevenue)} accent="bg-gradient-to-br from-amber-500 to-amber-600" icon={Activity} to="/analytics?period=year#revenue" />
       </div>
 
       {/* Inventory status mini-cards */}
       <div>
         <p className="section-label mb-3">Inventory Status</p>
         <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-5">
-          <MiniStat icon={CheckCircle2} accent="success" label="Available" value={d.availableProducts ?? 0} />
-          <MiniStat icon={Clock} accent="warn" label="Reserved" value={d.reservedProducts ?? 0} />
-          <MiniStat icon={ShoppingBag} accent="brand" label="Sold" value={d.soldProducts ?? 0} />
-          <MiniStat icon={Archive} accent="slate" label="Archived" value={d.archivedProducts ?? 0} />
-          <MiniStat icon={Clock} accent="danger" label="Aging >90d" value={d.longTermUnsold ?? 0} hint="Long-term unsold" />
+          <MiniStat icon={CheckCircle2} accent="success" label="Available" value={d.availableProducts ?? 0} to="/products?status=available" />
+          <MiniStat icon={Clock} accent="warn" label="Reserved" value={d.reservedProducts ?? 0} to="/products?status=reserved" />
+          <MiniStat icon={ShoppingBag} accent="brand" label="Sold" value={d.soldProducts ?? 0} to="/products?status=sold" />
+          <MiniStat icon={Archive} accent="slate" label="Archived" value={d.archivedProducts ?? 0} to="/products?status=archived" />
+          <MiniStat icon={Clock} accent="danger" label="Aging >90d" value={d.longTermUnsold ?? 0} hint="Long-term unsold" to="/analytics#aging" />
         </div>
       </div>
 
@@ -262,21 +266,26 @@ export default function Dashboard() {
   );
 }
 
-function RevenueCard({ label, value, accent, icon: Icon }) {
+function RevenueCard({ label, value, accent, icon: Icon, to }) {
+  const Wrapper = to ? Link : 'div';
+  const wrapperProps = to ? { to } : {};
   return (
-    <div className={`rounded-2xl ${accent} p-5 text-white`}>
+    <Wrapper
+      {...wrapperProps}
+      className={`rounded-2xl ${accent} p-5 text-white block${to ? ' cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-1' : ''}`}
+    >
       <div className="flex items-center justify-between mb-3">
-        <p className="text-[11.5px] font-semibold opacity-80 uppercase tracking-wider">{label}</p>
+        <p className="text-[12.5px] sm:text-[13.5px] font-semibold opacity-80 uppercase tracking-wider">{label}</p>
         <span className="grid h-8 w-8 place-items-center rounded-xl bg-white/15">
           <Icon size={15} />
         </span>
       </div>
-      <p className="text-2xl font-bold">{value}</p>
-    </div>
+      <p className="text-[24px] sm:text-[28px] font-bold">{value}</p>
+    </Wrapper>
   );
 }
 
-function MiniStat({ icon: Icon, label, value, hint, accent = 'primary' }) {
+function MiniStat({ icon: Icon, label, value, hint, accent = 'primary', to }) {
   const map = {
     primary: 'bg-primary-100 text-primary-700',
     brand: 'bg-brand-50 text-brand-600',
@@ -286,17 +295,22 @@ function MiniStat({ icon: Icon, label, value, hint, accent = 'primary' }) {
     success: 'bg-success-50 text-success-700',
     slate: 'bg-primary-100 text-primary-500',
   };
+  const Wrapper = to ? Link : 'div';
+  const wrapperProps = to ? { to } : {};
   return (
-    <div className="stat-card card-hover">
+    <Wrapper
+      {...wrapperProps}
+      className={`stat-card block${to ? ' cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-1' : ' card-hover'}`}
+    >
       <div className="flex items-center gap-3">
         <span className={`grid h-9 w-9 place-items-center rounded-xl shrink-0 ${map[accent]}`}><Icon size={16} /></span>
         <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-muted">{label}</p>
-          <p className="text-xl font-bold text-ink leading-tight">{value}</p>
+          <p className="text-[11.5px] sm:text-[13px] font-semibold uppercase tracking-wide text-muted">{label}</p>
+          <p className="text-2xl sm:text-[28px] font-bold text-ink leading-tight">{value}</p>
         </div>
       </div>
       {hint && <p className="text-[11px] text-muted">{hint}</p>}
-    </div>
+    </Wrapper>
   );
 }
 

@@ -1,11 +1,13 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate, Link } from 'react-router-dom';
 import { signOut } from 'firebase/auth';
 import { auth } from '../lib/firebase';
+import { adminApi } from '../api/admin';
+import NotificationBell from '../components/NotificationBell';
 import {
   LayoutDashboard, Package, Users, Target, Banknote, Store,
   BarChart3, Bell, LogOut, Menu, X, Settings, User as UserIcon,
-  ChevronLeft, ChevronRight, Car,
+  ChevronLeft, ChevronRight, Car, Send,
 } from 'lucide-react';
 
 const NAV_GROUPS = [
@@ -29,7 +31,8 @@ const NAV_GROUPS = [
   {
     label: 'System',
     items: [
-      { to: '/notifications', label: 'Notifications', icon: Bell },
+      { to: '/notifications', label: 'Notifications', icon: Bell, end: true, showUnreadBadge: true },
+      // { to: '/notifications/send', label: 'Send Notification', icon: Send },
       { to: '/settings', label: 'Settings', icon: Settings },
       { to: '/profile', label: 'Profile', icon: UserIcon },
     ],
@@ -47,9 +50,17 @@ function crumbFor(pathname) {
 export default function AdminLayout() {
   const [open, setOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
   const location = useLocation();
   const navigate = useNavigate();
   const crumb = crumbFor(location.pathname);
+
+  useEffect(() => {
+    const loadUnread = () => adminApi.unreadNotificationCount().then((r) => setUnreadCount(r.count || 0)).catch(() => {});
+    loadUnread();
+    const id = setInterval(loadUnread, 60000);
+    return () => clearInterval(id);
+  }, []);
 
   const handleLogout = async () => {
     await signOut(auth);
@@ -91,7 +102,7 @@ export default function AdminLayout() {
                 </p>
               )}
               <div className="flex flex-col gap-1">
-                {group.items.map(({ to, label, icon: Icon, end }) => (
+                {group.items.map(({ to, label, icon: Icon, end, showUnreadBadge }) => (
                   <NavLink
                     key={to}
                     to={to}
@@ -102,8 +113,22 @@ export default function AdminLayout() {
                       `nav-link ${isActive ? 'nav-link-active' : ''} ${collapsed ? 'justify-center px-0 py-3' : ''}`
                     }
                   >
-                    <Icon size={18} className="nav-icon shrink-0" />
+                    <span className="relative shrink-0">
+                      <Icon size={18} className="nav-icon" />
+                      {collapsed && showUnreadBadge && unreadCount > 0 && (
+                        <span className={`absolute grid place-items-center rounded-full bg-danger text-[9px] font-bold text-white ${
+                          collapsed ? '-top-1.5 -right-1.5 h-4 min-w-[16px] px-0.5' : '-top-1.5 -right-2 h-4 min-w-[16px] px-0.5'
+                        }`}>
+                          {unreadCount > 9 ? '9+' : unreadCount}
+                        </span>
+                      )}
+                    </span>
                     {!collapsed && <span>{label}</span>}
+                    {!collapsed && showUnreadBadge && unreadCount > 0 && (
+                      <span className="ml-auto grid h-5 min-w-[20px] place-items-center rounded-full bg-danger px-1.5 text-[10.5px] font-bold text-white">
+                        {unreadCount > 99 ? '99+' : unreadCount}
+                      </span>
+                    )}
                   </NavLink>
                 ))}
               </div>
@@ -179,10 +204,7 @@ export default function AdminLayout() {
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <Link to="/notifications" className="icon-btn relative" title="Notifications">
-              <Bell size={18} />
-              <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-danger border-2 border-white"></span>
-            </Link>
+            <NotificationBell />
             <Link
               to="/profile"
               className="flex items-center gap-2 rounded-full border border-line bg-white px-1.5 py-1.5 hover:bg-primary-50 transition-colors shadow-sm"

@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend, AreaChart, Area,
@@ -27,11 +29,26 @@ const CustomTooltip = ({ active, payload, label, formatter }) => {
 };
 
 export default function Analytics() {
+  const location = useLocation();
   const inv = useAdminData(() => adminApi.inventoryAnalytics());
   const lead = useAdminData(() => adminApi.leadAnalytics());
   const loan = useAdminData(() => adminApi.loanAnalytics());
   const rev = useAdminData(() => adminApi.revenueAnalytics());
   const aging = useAdminData(() => adminApi.aging());
+
+  // Dashboard cards deep-link here as /analytics#revenue, #inventory, #aging
+  useEffect(() => {
+    if (!location.hash) return;
+    const el = document.getElementById(location.hash.slice(1));
+    if (el) {
+      // Slight delay so charts have laid out before we scroll/highlight.
+      setTimeout(() => {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        el.classList.add('ring-2', 'ring-brand-400', 'rounded-2xl');
+        setTimeout(() => el.classList.remove('ring-2', 'ring-brand-400', 'rounded-2xl'), 2000);
+      }, 150);
+    }
+  }, [location.hash, inv.loading, rev.loading, aging.loading]);
 
   const onRefresh = () => { inv.refresh(); lead.refresh(); loan.refresh(); rev.refresh(); aging.refresh(); };
   const loading = inv.loading || lead.loading || rev.loading || aging.loading;
@@ -60,7 +77,7 @@ export default function Analytics() {
       <PageHeader title="Analytics" subtitle="Business insights, trends, and performance reporting" onRefresh={onRefresh} loading={loading} />
 
       {/* Revenue */}
-      <section className="space-y-4">
+      <section id="revenue" className="space-y-4 scroll-mt-24">
         <SectionLabel>Revenue Overview</SectionLabel>
         <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
           <StatCard label="Monthly Revenue" value={formatCurrencyFull(r.monthlyRevenue)} icon={TrendingUp} accent="brand" />
@@ -101,7 +118,7 @@ export default function Analytics() {
       </section>
 
       {/* Inventory */}
-      <section className="space-y-4">
+      <section id="inventory" className="space-y-4 scroll-mt-24">
         <SectionLabel>Inventory Analytics</SectionLabel>
         <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
           <StatCard label="Available" value={i.available ?? 0} icon={CheckCircle2} accent="success" />
@@ -171,7 +188,7 @@ export default function Analytics() {
       </section>
 
       {/* Aging table */}
-      <section className="space-y-4">
+      <section id="aging" className="space-y-4 scroll-mt-24">
         <SectionLabel>Oldest Unsold Inventory</SectionLabel>
         <div className="table-wrapper">
           <table className="data-table">

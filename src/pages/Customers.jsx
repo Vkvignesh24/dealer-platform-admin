@@ -4,7 +4,7 @@ import { Eye, Users, UserPlus, Heart, Banknote, Target, Mail, Phone } from 'luci
 import { adminApi } from '../api/admin';
 import { useAdminData } from '../lib/useAdminData';
 import {
-  PageHeader, Loader, ErrorState, EmptyState, formatDate, timeAgo,
+  PageHeader, Loader, ErrorState, EmptyState, formatDate, timeAgo, formatCurrencyFull,
   StatCard, SearchBar, FilterPanel, Pagination, Avatar,
 } from '../components/UI';
 
@@ -26,7 +26,6 @@ export default function Customers() {
         <StatCard label="Loan Applicants" value={items.filter((c) => c.loanRequests > 0).length} icon={Banknote} accent="success" />
         <StatCard label="With Wishlist" value={items.filter((c) => c.interestedProducts > 0).length} icon={Heart} accent="warn" />
       </div>
-
       <FilterPanel>
         <SearchBar value={filters.search} onChange={(v) => set('search', v)} placeholder="Search name, email or phone…" />
       </FilterPanel>
@@ -38,7 +37,7 @@ export default function Customers() {
           <div className="table-wrapper">
             <table className="data-table">
               <thead>
-                <tr><th>Customer</th><th>Contact</th><th>Leads</th><th>Loans</th><th>Wishlist</th><th>Joined</th><th className="text-right">Actions</th></tr>
+                <tr><th>Customer</th><th>Contact</th><th>Leads</th><th>Loans</th><th>Wishlist</th><th>Lifetime Value</th><th>Joined</th><th className="text-right">Actions</th></tr>
               </thead>
               <tbody>
                 {items.map((c) => (
@@ -75,6 +74,11 @@ export default function Customers() {
                     </td>
                     <td>
                       <span className={`badge ${c.interestedProducts > 0 ? 'badge-warning' : 'badge-neutral'}`}>{c.interestedProducts}</span>
+                    </td>
+                    <td>
+                      <span className={`font-bold ${c.lifetimeValue > 0 ? 'text-success-700' : 'text-muted'}`}>
+                        {c.lifetimeValue > 0 ? formatCurrencyFull(c.lifetimeValue) : '—'}
+                      </span>
                     </td>
                     <td className="text-muted text-[12px]">{timeAgo(c.createdAt)}</td>
                     <td className="text-right">

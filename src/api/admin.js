@@ -10,6 +10,7 @@ export const adminApi = {
   products: (params) => client.get('/admin/products', { params }).then(unwrap),
   product: (id) => client.get(`/admin/products/${id}`).then(unwrap),
   updateProduct: (id, payload) => client.put(`/admin/products/${id}`, payload).then(unwrap),
+  duplicateProduct: (id) => client.post(`/admin/products/${id}/duplicate`).then(unwrap),
   archiveProduct: (id) => client.patch(`/admin/products/${id}/archive`).then(unwrap),
   setProductStatus: (id, status) => client.patch(`/admin/products/${id}/status`, { status }).then(unwrap),
   deleteProduct: (id) => client.delete(`/admin/products/${id}`).then(unwrap),
@@ -28,6 +29,8 @@ export const adminApi = {
   loans: (params) => client.get('/admin/loans', { params }).then(unwrap),
   loan: (id) => client.get(`/admin/loans/${id}`).then(unwrap),
   updateLoan: (id, payload) => client.patch(`/admin/loans/${id}`, payload).then(unwrap),
+  addLoanDocument: (id, payload) => client.post(`/admin/loans/${id}/documents`, payload).then(unwrap),
+  removeLoanDocument: (id, docId) => client.delete(`/admin/loans/${id}/documents/${docId}`).then(unwrap),
   loanAnalytics: () => client.get('/admin/loans/analytics').then(unwrap),
 
   // Dealers (team members with the 'dealer' role — see Dealers.jsx note)
@@ -40,8 +43,21 @@ export const adminApi = {
   aging: () => client.get('/admin/analytics/aging').then(unwrap),
 
   // Notifications
+  // Backend user record for the signed-in admin/dealer (role, createdAt,
+  // lastLoginAt) — same /auth/me endpoint the customer/dealer apps use.
+  me: () => client.get('/auth/me').then(unwrap),
+  recentActivity: () => client.get('/admin/audit-logs/recent').then(unwrap),
+
   notifications: () => client.get('/admin/notifications').then(unwrap),
   sendNotification: (payload) => client.post('/admin/notifications', payload).then(unwrap),
+
+  // Personal inbox — powers the header bell. Separate from the broadcast
+  // management list above: this only returns notifications relevant to
+  // the signed-in admin/dealer (global + dealer-audience + targeted).
+  myNotifications: (params) => client.get('/notifications', { params }).then(unwrap),
+  unreadNotificationCount: () => client.get('/notifications/unread-count').then(unwrap),
+  markNotificationRead: (id) => client.patch(`/notifications/${id}/read`).then(unwrap),
+  markAllNotificationsRead: () => client.patch('/notifications/read-all').then(unwrap),
 
   // Business settings — real endpoint already used by the customer app
   // (GET is public, PUT requires dealer/admin role, which this console's
@@ -64,4 +80,5 @@ export const adminApi = {
   // Customer search, used by the Sale/Reserve dialogs to pick an "Existing
   // Customer" without needing a full customer list page load.
   customerSearch: (search) => client.get('/admin/customers', { params: { search, limit: 8 } }).then(unwrap),
+  dealerSearch: (search) => client.get('/admin/dealers', { params: { search } }).then(unwrap),
 };

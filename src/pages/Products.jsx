@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   Eye, Pencil, Archive, Trash2, Package, CheckCircle2, Clock, ShoppingBag,
-  LayoutGrid, List, MapPin, Fuel, Gauge, Calendar, TrendingUp, Target,
+  LayoutGrid, List, MapPin, Fuel, Gauge, Calendar, TrendingUp, Target, Copy, Tag, KeyRound,
 } from 'lucide-react';
 import { adminApi } from '../api/admin';
 import { useAdminData } from '../lib/useAdminData';
@@ -10,6 +10,8 @@ import {
   PageHeader, Loader, ErrorState, EmptyState, StatusBadge, PRODUCT_STATUS_MAP,
   formatDate, titleCase, SearchBar, FilterPanel, Pagination, StatCard,
 } from '../components/UI';
+import MarkSoldDialog from '../components/MarkSoldDialog';
+import ReserveDialog from '../components/ReserveDialog';
 
 const CATEGORIES = ['car', 'bike', 'ev', 'commercial', 'land', 'property'];
 const STATUSES = ['available', 'reserved', 'sold', 'archived'];
@@ -27,8 +29,11 @@ function formatPriceFull(n) {
 }
 
 export default function Products() {
-  const [filters, setFilters] = useState({ search: '', category: '', status: '', sort: 'newest', page: 1 });
+  const [searchParams] = useSearchParams();
+  const [filters, setFilters] = useState({ search: '', category: '', status: searchParams.get('status') || '', sort: 'newest', page: 1 });
   const [view, setView] = useState('table');
+  const [saleTarget, setSaleTarget] = useState(null);
+  const [reserveTarget, setReserveTarget] = useState(null);
   const { data, loading, error, refresh } = useAdminData(
     () => adminApi.products(filters),
     [filters.search, filters.category, filters.status, filters.sort, filters.page]
@@ -43,6 +48,10 @@ export default function Products() {
   const onDelete = async (id) => {
     if (!confirm('Permanently delete this product? This cannot be undone.')) return;
     await adminApi.deleteProduct(id); refresh();
+  };
+  const onDuplicate = async (id) => {
+    await adminApi.duplicateProduct(id);
+    refresh();
   };
 
   return (
@@ -127,8 +136,18 @@ export default function Products() {
                     <td className="text-muted">{formatDate(p.createdAt)}</td>
                     <td>
                       <div className="flex items-center justify-end gap-1">
+                        {p.status === 'available' && (
+                          <>
+                            <button className="icon-btn hover:text-success-600" onClick={() => setSaleTarget(p)} title="Mark Sold"><Tag size={14} /></button>
+                            <button className="icon-btn hover:text-amber-600" onClick={() => setReserveTarget(p)} title="Reserve"><KeyRound size={14} /></button>
+                          </>
+                        )}
+                        {p.status === 'reserved' && (
+                          <button className="icon-btn hover:text-success-600" onClick={() => setSaleTarget(p)} title="Mark Sold"><Tag size={14} /></button>
+                        )}
                         <Link to={`/products/${p._id}`} className="icon-btn" title="View"><Eye size={14} /></Link>
                         <Link to={`/products/${p._id}/edit`} className="icon-btn" title="Edit"><Pencil size={14} /></Link>
+                        <button className="icon-btn" onClick={() => onDuplicate(p._id)} title="Duplicate"><Copy size={14} /></button>
                         <button className="icon-btn hover:text-amber-600" onClick={() => onArchive(p._id)} title="Archive"><Archive size={14} /></button>
                         {/* <button className="icon-btn hover:text-danger" onClick={() => onDelete(p._id)} title="Delete"><Trash2 size={14} /></button> */}
                       </div>
@@ -141,17 +160,21 @@ export default function Products() {
         ) : (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {data.items.map((p) => (
-              <ProductCard key={p._id} product={p} onArchive={onArchive} onDelete={onDelete} />
+              <ProductCard key={p._id} product={p} onArchive={onArchive} onDelete={onDelete} onDuplicate={onDuplicate}
+                onMarkSold={() => setSaleTarget(p)} onReserve={() => setReserveTarget(p)} />
             ))}
           </div>
         )}
 
       <Pagination page={data?.page} pages={data?.pages} total={data?.total} onChange={(p) => set('page', p)} />
+
+      <MarkSoldDialog key={`sold-${saleTarget?._id || 'none'}`} open={!!saleTarget} onClose={() => setSaleTarget(null)} product={saleTarget} onSuccess={refresh} />
+      <ReserveDialog key={`reserve-${reserveTarget?._id || 'none'}`} open={!!reserveTarget} onClose={() => setReserveTarget(null)} product={reserveTarget} onSuccess={refresh} />
     </div>
   );
 }
 
-function ProductCard({ product: p, onArchive, onDelete }) {
+function ProductCard({ product: p, onArchive, onDelete, onDuplicate, onMarkSold, onReserve }) {
   return (
     <div className="card overflow-hidden card-hover group">
       <div className="relative">
@@ -185,7 +208,17 @@ function ProductCard({ product: p, onArchive, onDelete }) {
             <span className="flex items-center gap-1"><Target size={11} />{p.leadCount ?? 0}</span>
           </div>
           <div className="flex items-center gap-0.5">
+            {p.status === 'available' && (
+              <>
+                <button className="icon-btn hover:text-success-600" onClick={onMarkSold} title="Mark Sold"><Tag size={13} /></button>
+                <button className="icon-btn hover:text-amber-600" onClick={onReserve} title="Reserve"><KeyRound size={13} /></button>
+              </>
+            )}
+            {p.status === 'reserved' && (
+              <button className="icon-btn hover:text-success-600" onClick={onMarkSold} title="Mark Sold"><Tag size={13} /></button>
+            )}
             <Link to={`/products/${p._id}/edit`} className="icon-btn" title="Edit"><Pencil size={13} /></Link>
+            <button className="icon-btn" onClick={() => onDuplicate(p._id)} title="Duplicate"><Copy size={13} /></button>
             <button className="icon-btn hover:text-amber-600" onClick={() => onArchive(p._id)} title="Archive"><Archive size={13} /></button>
             <button className="icon-btn hover:text-danger" onClick={() => onDelete(p._id)} title="Delete"><Trash2 size={13} /></button>
           </div>

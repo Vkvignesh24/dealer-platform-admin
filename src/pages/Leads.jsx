@@ -24,7 +24,7 @@ const PIPELINE = [
 export default function Leads() {
   const [searchParams, setSearchParams] = useSearchParams();
   const productFilter = searchParams.get('product') || '';
-  const [filters, setFilters] = useState({ search: '', status: '', page: 1 });
+  const [filters, setFilters] = useState({ search: '', status: searchParams.get('status') || '', page: 1 });
   const { data, loading, error, refresh } = useAdminData(
     () => adminApi.leads({ ...filters, product: productFilter || undefined }),
     [filters.search, filters.status, filters.page, productFilter]

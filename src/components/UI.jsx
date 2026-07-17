@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { RefreshCw, Inbox, AlertTriangle, Search, ArrowUpRight, ArrowDownRight, Minus, TrendingUp } from 'lucide-react';
 
 /* ---------- Formatters ---------- */
@@ -40,7 +41,7 @@ export function timeAgo(d) {
 }
 
 /* ---------- StatCard with trend ---------- */
-export function StatCard({ label, value, sub, icon: Icon, accent = 'primary', trend, trendLabel, color }) {
+export function StatCard({ label, value, sub, icon: Icon, accent = 'primary', trend, trendLabel, color, to }) {
   const accents = {
     primary: { bg: 'bg-primary-100', text: 'text-primary-700', dot: 'bg-primary-500' },
     brand:   { bg: 'bg-brand-50',    text: 'text-brand-600',   dot: 'bg-brand-500' },
@@ -53,17 +54,22 @@ export function StatCard({ label, value, sub, icon: Icon, accent = 'primary', tr
   const a = accents[accent] || accents.primary;
   const TrendIcon = trend > 0 ? ArrowUpRight : trend < 0 ? ArrowDownRight : Minus;
   const trendCls = trend > 0 ? 'trend-up' : trend < 0 ? 'trend-down' : 'trend-flat';
+  const Wrapper = to ? Link : 'div';
+  const wrapperProps = to ? { to } : {};
   return (
-    <div className="stat-card card-hover">
+    <Wrapper
+      {...wrapperProps}
+      className={`stat-card${to ? ' cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-1' : ' card-hover'}`}
+    >
       <div className="flex items-center justify-between">
-        <span className="text-[12px] font-semibold text-muted tracking-wide">{label}</span>
+        <span className="text-[13px] sm:text-[15px] font-semibold text-muted tracking-wide">{label}</span>
         {Icon && (
           <span className={`grid h-9 w-9 place-items-center rounded-xl ${a.bg} ${a.text}`}>
             <Icon size={16} />
           </span>
         )}
       </div>
-      <span className="text-[26px] font-bold leading-tight text-ink">{value}</span>
+      <span className="text-[28px] sm:text-[32px] lg:text-[36px] font-bold leading-tight text-ink">{value}</span>
       <div className="flex items-center gap-2">
         {typeof trend === 'number' && (
           <span className={trendCls}>
@@ -73,7 +79,7 @@ export function StatCard({ label, value, sub, icon: Icon, accent = 'primary', tr
         {sub && <span className="text-[11.5px] text-muted">{sub}</span>}
         {trendLabel && <span className="text-[11.5px] text-muted">{trendLabel}</span>}
       </div>
-    </div>
+    </Wrapper>
   );
 }
 
