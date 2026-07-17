@@ -97,7 +97,7 @@ export default function AdminLayout() {
           {NAV_GROUPS.map((group) => (
             <div key={group.label} className="mb-5">
               {!collapsed && (
-                <p className="px-2 pb-2 text-[10.5px] font-bold uppercase tracking-widest text-indigo-400">
+                <p className="px-2 pb-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-indigo-400">
                   {group.label}
                 </p>
               )}

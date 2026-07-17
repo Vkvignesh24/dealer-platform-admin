@@ -33,7 +33,7 @@ export default function CustomerDetails() {
   const c = data.profile;
   const leads = data.leadHistory || [];
   const loans = data.loanRequests || [];
-  const wishlist = data.interestedProducts || [];
+  
   const purchases = data.purchases || [];
   const activePurchases = purchases.filter((p) => p.status === 'active');
   const activity = buildActivity(leads, loans, purchases);
@@ -42,7 +42,7 @@ export default function CustomerDetails() {
     { key: 'leads', label: 'Leads', count: leads.length, icon: Target },
     { key: 'loans', label: 'Loans', count: loans.length, icon: Banknote },
     { key: 'purchases', label: 'Purchases', count: activePurchases.length, icon: PackageCheck },
-    { key: 'wishlist', label: 'Wishlist', count: wishlist.length, icon: Heart },
+
     { key: 'activity', label: 'Activity', count: activity.length, icon: Activity },
   ];
 
@@ -101,7 +101,7 @@ export default function CustomerDetails() {
               <MetricChip label="Loan Applications" value={loans.length} accent="success" />
               <MetricChip label="Purchases" value={activePurchases.length} accent="success" />
               <MetricChip label="Lifetime Value" value={formatCurrencyFull(activePurchases.reduce((sum, p) => sum + (p.salePrice || 0), 0))} accent="success" />
-              <MetricChip label="Wishlist Items" value={wishlist.length} accent="warn" />
+              
             </div>
           </div>
         </div>
@@ -221,7 +221,7 @@ export default function CustomerDetails() {
           )}
 
           {/* Wishlist tab */}
-          {tab === 'wishlist' && (
+          {/* {tab === 'wishlist' && (
             <div className="card card-p">
               <h3 className="panel-title mb-4">Wishlist</h3>
               {wishlist.length === 0 ? (
@@ -244,7 +244,7 @@ export default function CustomerDetails() {
                 </div>
               )}
             </div>
-          )}
+          )} */}
 
           {/* Activity tab */}
           {tab === 'activity' && (

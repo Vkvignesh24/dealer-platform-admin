@@ -24,7 +24,7 @@ export default function Customers() {
         <StatCard label="Total Customers" value={data?.total ?? '—'} icon={Users} accent="primary" />
         <StatCard label="With Leads" value={items.filter((c) => c.totalLeads > 0).length} icon={Target} accent="brand" />
         <StatCard label="Loan Applicants" value={items.filter((c) => c.loanRequests > 0).length} icon={Banknote} accent="success" />
-        <StatCard label="With Wishlist" value={items.filter((c) => c.interestedProducts > 0).length} icon={Heart} accent="warn" />
+        {/* <StatCard label="With Wishlist" value={items.filter((c) => c.interestedProducts > 0).length} icon={Heart} accent="warn" /> */}
       </div>
       <FilterPanel>
         <SearchBar value={filters.search} onChange={(v) => set('search', v)} placeholder="Search name, email or phone…" />
@@ -37,7 +37,7 @@ export default function Customers() {
           <div className="table-wrapper">
             <table className="data-table">
               <thead>
-                <tr><th>Customer</th><th>Contact</th><th>Leads</th><th>Loans</th><th>Wishlist</th><th>Lifetime Value</th><th>Joined</th><th className="text-right">Actions</th></tr>
+                <tr><th>Customer</th><th>Contact</th><th>Leads</th><th>Loans</th><th>Lifetime Value</th><th>Joined</th><th className="text-right">Actions</th></tr>
               </thead>
               <tbody>
                 {items.map((c) => (
@@ -72,9 +72,9 @@ export default function Customers() {
                     <td>
                       <span className={`badge ${c.loanRequests > 0 ? 'badge-success' : 'badge-neutral'}`}>{c.loanRequests}</span>
                     </td>
-                    <td>
+                    {/* <td>
                       <span className={`badge ${c.interestedProducts > 0 ? 'badge-warning' : 'badge-neutral'}`}>{c.interestedProducts}</span>
-                    </td>
+                    </td> */}
                     <td>
                       <span className={`font-bold ${c.lifetimeValue > 0 ? 'text-success-700' : 'text-muted'}`}>
                         {c.lifetimeValue > 0 ? formatCurrencyFull(c.lifetimeValue) : '—'}

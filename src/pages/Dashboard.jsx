@@ -272,7 +272,7 @@ function RevenueCard({ label, value, accent, icon: Icon, to }) {
   return (
     <Wrapper
       {...wrapperProps}
-      className={`rounded-2xl ${accent} p-5 text-white block${to ? ' cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-1' : ''}`}
+      className={`rounded-2xl ${accent} p-4 text-white block${to ? ' cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-1' : ''}`}
     >
       <div className="flex items-center justify-between mb-3">
         <p className="text-[12.5px] sm:text-[13.5px] font-semibold opacity-80 uppercase tracking-wider">{label}</p>
@@ -280,7 +280,9 @@ function RevenueCard({ label, value, accent, icon: Icon, to }) {
           <Icon size={15} />
         </span>
       </div>
-      <p className="text-[24px] sm:text-[28px] font-bold">{value}</p>
+      <p className="text-[20px] sm:text-[22px] lg:text-[24px] font-bold tracking-tight">
+        {value}
+      </p>
     </Wrapper>
   );
 }
@@ -306,7 +308,7 @@ function MiniStat({ icon: Icon, label, value, hint, accent = 'primary', to }) {
         <span className={`grid h-9 w-9 place-items-center rounded-xl shrink-0 ${map[accent]}`}><Icon size={16} /></span>
         <div>
           <p className="text-[11.5px] sm:text-[13px] font-semibold uppercase tracking-wide text-muted">{label}</p>
-          <p className="text-2xl sm:text-[28px] font-bold text-ink leading-tight">{value}</p>
+          <p className="text-[22px] sm:text-[24px] font-bold text-ink leading-tight">{value}</p>
         </div>
       </div>
       {hint && <p className="text-[11px] text-muted">{hint}</p>}

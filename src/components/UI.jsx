@@ -44,12 +44,12 @@ export function timeAgo(d) {
 export function StatCard({ label, value, sub, icon: Icon, accent = 'primary', trend, trendLabel, color, to }) {
   const accents = {
     primary: { bg: 'bg-primary-100', text: 'text-primary-700', dot: 'bg-primary-500' },
-    brand:   { bg: 'bg-brand-50',    text: 'text-brand-600',   dot: 'bg-brand-500' },
-    info:    { bg: 'bg-blue-50',     text: 'text-blue-600',    dot: 'bg-blue-500' },
-    warn:    { bg: 'bg-amber-50',    text: 'text-amber-600',   dot: 'bg-amber-500' },
-    danger:  { bg: 'bg-red-50',      text: 'text-danger',      dot: 'bg-danger' },
-    success: { bg: 'bg-success-50',  text: 'text-success-700', dot: 'bg-success-500' },
-    slate:   { bg: 'bg-primary-100', text: 'text-primary-500', dot: 'bg-primary-400' },
+    brand: { bg: 'bg-brand-50', text: 'text-brand-600', dot: 'bg-brand-500' },
+    info: { bg: 'bg-blue-50', text: 'text-blue-600', dot: 'bg-blue-500' },
+    warn: { bg: 'bg-amber-50', text: 'text-amber-600', dot: 'bg-amber-500' },
+    danger: { bg: 'bg-red-50', text: 'text-danger', dot: 'bg-danger' },
+    success: { bg: 'bg-success-50', text: 'text-success-700', dot: 'bg-success-500' },
+    slate: { bg: 'bg-primary-100', text: 'text-primary-500', dot: 'bg-primary-400' },
   };
   const a = accents[accent] || accents.primary;
   const TrendIcon = trend > 0 ? ArrowUpRight : trend < 0 ? ArrowDownRight : Minus;
@@ -69,7 +69,7 @@ export function StatCard({ label, value, sub, icon: Icon, accent = 'primary', tr
           </span>
         )}
       </div>
-      <span className="text-[28px] sm:text-[32px] lg:text-[36px] font-bold leading-tight text-ink">{value}</span>
+      <span className="text-[18px] sm:text-[20px] lg:text-[22px] font-bold leading-tight text-ink">{value}</span>
       <div className="flex items-center gap-2">
         {typeof trend === 'number' && (
           <span className={trendCls}>
@@ -276,9 +276,8 @@ export function Pagination({ page, pages, total, onChange }) {
         {nums.map((n) => (
           <button
             key={n}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-xl border transition-colors ${
-              n === page ? 'bg-brand-500 text-white border-brand-500' : 'border-line bg-white text-primary-700 hover:bg-primary-50'
-            }`}
+            className={`px-3 py-1.5 text-xs font-semibold rounded-xl border transition-colors ${n === page ? 'bg-brand-500 text-white border-brand-500' : 'border-line bg-white text-primary-700 hover:bg-primary-50'
+              }`}
             onClick={() => onChange(n)}
           >{n}</button>
         ))}
