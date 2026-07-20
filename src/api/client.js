@@ -3,7 +3,7 @@ import { auth } from '../lib/firebase';
 
 const client = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:4000/api/v1',
-  timeout: 20000,
+  timeout: 40000,
 });
 
 // Attach the current admin's Firebase ID token to every request.
